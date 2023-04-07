@@ -13,16 +13,32 @@ router.get('/', (req, res)=>{
     res.send('Connected to API.');
 });
 
-router.route('/shipment').get(async function(req,res){
-   try{
-       let conn = await pool.getConnection();
-       let rows = await conn.query('SELECT * FROM shipment');
-       conn.release();
-       res.json({"code": 200, "status": "OK", "data": rows});
-   } catch (e){
-       console.log(e);
-       return res.json({"code": 100, "status": "Error with query"});
-   }
+router.route('/shipments').get(async function(req,res){
+    try{
+        let conn = await pool.getConnection();
+        let rows = await conn.query('CALL ShipmentInfo(NULL)');
+        rows = rows[0];
+        if(req.query.startDate !== undefined) {
+            rows = rows.filter(row => {
+                return Date.parse(req.query.startDate) <= Date.parse(row.Creation_Date);
+            });
+        }
+        if(req.query.endDate !== undefined){
+            rows = rows.filter(row => {
+                return Date.parse(req.query.endDate) >= Date.parse(row.Creation_Date);
+            });
+        }
+        if(req.query.status !== undefined){
+            rows = rows.filter(row => {
+                return req.query.status === row.STATUS
+            });
+        }
+        conn.release();
+        res.json({"code": 200, "status": "OK", "data": rows});
+    } catch (e){
+        console.log(e);
+        return res.json({"code": 100, "status": "Error with query"});
+    }
 }).post(async function(req, res){
     try{
         const shipment = {
@@ -75,16 +91,50 @@ router.route('/shipment').get(async function(req,res){
     }
 });
 
-router.route('/shipment/:id').get(async function(req,res){
+router.route('/shipments/:id').get(async function(req,res){
     try{
         let conn = await pool.getConnection();
         //let rows = await conn.query('SELECT * FROM shipment WHERE ID = ?', req.params.id);
         let rows = await conn.query('CALL ShipmentInfo(?)', req.params.id);
+        rows = rows[0];
+        conn.release();
         res.json({"code": 200, "status": "OK", "data": rows});
     } catch(e){
         console.log(e);
         return res.json({"code": 100, "status": "Error with query"});
     }
+});
+
+router.route('/users/:userId').get(async function(req,res){
+    try{
+        let conn = await pool.getConnection();
+        let rows = await conn.query('CALL UserShipments(?)', req.params.userId);
+        rows = rows[0];
+        conn.release();
+        if(req.query.startDate !== undefined) {
+            rows = rows.filter(row => {
+                return Date.parse(req.query.startDate) <= Date.parse(row.Creation_Date);
+            });
+        }
+        if(req.query.endDate !== undefined){
+            rows = rows.filter(row => {
+                return Date.parse(req.query.endDate) >= Date.parse(row.Creation_Date);
+            });
+        }
+        if(req.query.status !== undefined){
+            rows = rows.filter(row => {
+                return req.query.status === row.STATUS
+            });
+        }
+        res.json({"code": 200, "status": "OK", "data": rows});
+    } catch(e){
+        console.log(e);
+        return res.json({"code": 100, "status": "Error with query"});
+    }
+});
+
+router.use('*', async function(req,res){
+    res.json({"code": 400, "status": "Invalid API call."});
 });
 
 module.exports = router;
