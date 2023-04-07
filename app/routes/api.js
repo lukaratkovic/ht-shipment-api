@@ -19,6 +19,9 @@ router.route('/shipments').get(async function(req,res){
         let conn = await pool.getConnection();
         let rows = await conn.query('CALL ShipmentInfo(NULL)');
         let shipments = filterShipments(rows[0], req.query);
+        for (let i = 0; i < shipments.length; i++) {
+            shipments[i].Products = await getShipmentProducts(conn, shipments[i].ShipmentID);
+        }
         conn.release();
         res.json({"code": 200, "status": "OK", "data": shipments});
     } catch (e){
@@ -91,6 +94,9 @@ router.route('/users/:userId').get(async function(req,res){
         let conn = await pool.getConnection();
         let rows = await conn.query('CALL UserShipments(?)', req.params.userId);
         let shipments = filterShipments(rows[0], req.query);
+        for (let i = 0; i < shipments.length; i++) {
+            shipments[i].Products = await getShipmentProducts(conn, shipments[i].ShipmentID);
+        }
         conn.release();
         res.json({"code": 200, "status": "OK", "data": shipments});
     } catch(e){
