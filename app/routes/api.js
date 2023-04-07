@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const mysql = require('promise-mysql');
 const config = require("../../config");
-const {filterShipments,assignShipment} = require("../../utils/utils");
+const {filterShipments,assignShipment,getShipmentProducts} = require("../../utils/utils");
 
 initDb = async () => {
     pool = await mysql.createPool(config.pool);
@@ -72,8 +72,14 @@ router.route('/shipments/:id').get(async function(req,res){
         //let rows = await conn.query('SELECT * FROM shipment WHERE ID = ?', req.params.id);
         let rows = await conn.query('CALL ShipmentInfo(?)', req.params.id);
         rows = rows[0];
+        if(rows.length === 0){
+            res.json({"code": 204, "status": "Shipment does not exist"});
+            return;
+        }
+        let shipments = rows;
+        shipments[0].Products = await getShipmentProducts(conn, req.params.id);
         conn.release();
-        res.json({"code": 200, "status": "OK", "data": rows});
+        res.json({"code": 200, "status": "OK", "data": shipments});
     } catch(e){
         console.log(e);
         return res.json({"code": 100, "status": "Error with query"});

@@ -32,4 +32,10 @@ function assignShipment(req){
     }
 }
 
-module.exports = {filterShipments, assignShipment};
+async function getShipmentProducts(conn, id){
+    let products = await
+        conn.query('CALL ShipmentProducts(?)',id);
+    return products[0];
+}
+
+module.exports = {filterShipments, assignShipment, getShipmentProducts};
