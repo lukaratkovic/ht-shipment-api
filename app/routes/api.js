@@ -31,9 +31,13 @@ router.route('/shipments').get(async function(req,res){
 }).post(async function(req, res){
     try{
         const shipment = assignShipment(req);
-        console.log(shipment);
         let conn = await pool.getConnection();
-        await conn.query('INSERT INTO shipment SET ?', shipment);
+        let q = await conn.query('INSERT INTO shipment SET ?', shipment);
+        for (let i = 0; i < req.body.products.length; i++) {
+            let product = req.body.products[i];
+            await conn.query("INSERT INTO shipment_products VALUES (?, ?, ?)",
+                [q.insertId, product.product_id, product.amount]);
+        }
         conn.release();
         res.json({"code": 200, "status": "OK"});
     } catch(e){
