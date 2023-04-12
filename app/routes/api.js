@@ -64,7 +64,7 @@ router.route('/shipments').get(async function(req,res){
         let shipment
             = assignShipment(req);
 
-        if(shipment.user_oib.length !== 11){
+        if(shipment.user_oib !== undefined && shipment.user_oib.length !== 11){
             res.json({"code": 400, "status": "Invalid user OIB"});
         }
         if(!validateDate(shipment.creation_date) || !validateDate(shipment.delivery_date)){
