@@ -72,6 +72,7 @@ router.route('/shipments').get(async function(req,res){
             return;
         }
 
+
         for(let key in shipment){
             if(shipment[key] === undefined || shipment[key] == null)
                 delete shipment[key]
@@ -80,9 +81,16 @@ router.route('/shipments').get(async function(req,res){
         console.log(shipment);
 
         let conn = await pool.getConnection();
-        if(req.body.products === undefined){
-            let q = await conn.query('UPDATE shipment SET ? WHERE id = ?', [shipment,req.body.id]);
+        await conn.query('UPDATE shipment SET ? WHERE id = ?', [shipment,req.body.id]);
+        if(req.body.products !== undefined) {
+            await conn.query("DELETE FROM shipment_products WHERE shipment_id = ?",req.body.id);
+            for (let i = 0; i < req.body.products.length; i++) {
+                let product = req.body.products[i];
+                await conn.query("INSERT INTO shipment_products VALUES (?, ?, ?)",
+                    [req.body.id, product.product_id, product.amount]);
+            }
         }
+
         conn.release();
         res.json({"code": 200, "status": "OK"});
     } catch(e){
