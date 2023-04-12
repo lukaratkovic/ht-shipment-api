@@ -67,13 +67,36 @@ router.route('/shipments').get(async function(req,res){
         console.log(e);
         return res.json({"code": 100, "status": "Error with query"});
     }
+});
+
+// GET and PUT route for shipments by specific ID
+router.route('/shipments/:id').get(async function(req,res){
+    try{
+        let conn = await pool.getConnection();
+        // Fetch shipment by ID from database
+        let rows = await conn.query('CALL ShipmentInfo(?)', req.params.id);
+        rows = rows[0];
+        // Check if shipments exists
+        if(rows.length === 0){
+            res.json({"code": 204, "status": "Shipment does not exist"});
+            return;
+        }
+        let shipments = rows;
+        // Get shipment products from database
+        shipments[0].Products = await getShipmentProducts(conn, req.params.id);
+        conn.release();
+        res.json({"code": 200, "status": "OK", "data": shipments});
+    } catch(e){
+        console.log(e);
+        return res.json({"code": 100, "status": "Error with query"});
+    }
 }).put(async function(req,res){
     try{
         // Assign request parameters to shipment object
         let shipment
             = assignShipment(req);
         // Check for invalid or missing properties
-        if(req.body.id === undefined) {
+        if(req.params.id === undefined) {
             res.json({"code": 400, "status": "Shipment ID not provided"});
             return;
         }
@@ -91,41 +114,18 @@ router.route('/shipments').get(async function(req,res){
 
         let conn = await pool.getConnection();
         // Update the shipment and its products
-        await conn.query('UPDATE shipment SET ? WHERE id = ?', [shipment,req.body.id]);
+        await conn.query('UPDATE shipment SET ? WHERE id = ?', [shipment,req.params.id]);
         if(req.body.products !== undefined) {
-            await conn.query("DELETE FROM shipment_products WHERE shipment_id = ?",req.body.id);
+            await conn.query("DELETE FROM shipment_products WHERE shipment_id = ?",req.params.id);
             for (let i = 0; i < req.body.products.length; i++) {
                 let product = req.body.products[i];
                 await conn.query("INSERT INTO shipment_products VALUES (?, ?, ?)",
-                    [req.body.id, product.product_id, product.amount]);
+                    [req.params.id, product.product_id, product.amount]);
             }
         }
 
         conn.release();
         res.json({"code": 200, "status": "OK"});
-    } catch(e){
-        console.log(e);
-        return res.json({"code": 100, "status": "Error with query"});
-    }
-});
-
-// GET route for shipments by specific ID
-router.route('/shipments/:id').get(async function(req,res){
-    try{
-        let conn = await pool.getConnection();
-        // Fetch shipment by ID from database
-        let rows = await conn.query('CALL ShipmentInfo(?)', req.params.id);
-        rows = rows[0];
-        // Check if shipments exists
-        if(rows.length === 0){
-            res.json({"code": 204, "status": "Shipment does not exist"});
-            return;
-        }
-        let shipments = rows;
-        // Get shipment products from database
-        shipments[0].Products = await getShipmentProducts(conn, req.params.id);
-        conn.release();
-        res.json({"code": 200, "status": "OK", "data": shipments});
     } catch(e){
         console.log(e);
         return res.json({"code": 100, "status": "Error with query"});
