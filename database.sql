@@ -96,15 +96,15 @@ CREATE TABLE `shipment` (
   CONSTRAINT `shipment_ibfk_1` FOREIGN KEY (`user_oib`) REFERENCES `user` (`oib`),
   CONSTRAINT `shipment_ibfk_2` FOREIGN KEY (`delivery_city_id`) REFERENCES `city` (`id`),
   CONSTRAINT `shipment_ibfk_3` FOREIGN KEY (`receipt_city_id`) REFERENCES `city` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=32 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 /*Data for the table `shipment` */
 
 insert  into `shipment`(`status`,`creation_date`,`delivery_date`,`user_oib`,`delivery_city_id`,`delivery_house_number`,`receipt_city_id`,`receipt_house_number`,`delivery_street_name`,`receipt_street_name`,`id`) values 
-('DELIVERED','2023-04-04','2023-04-06','09876543210',2,'11',2,'11','Savska','Savska',1),
-('NOVO','2023-04-04','2023-04-06','01234567890',2,'11',2,'11','Savska','Savska',3),
-('DELIVERED','2023-01-01','2023-02-12','09876543210',3,'6d',3,'21','Petrinjska','Dugoselska',4),
-('DELIVERED','2023-04-07','2023-04-07','01234567890',2,'6d',3,'21','Petrinjska','Dugoselska',5);
+('DELIVERED','2023-03-31','2023-04-01','09876543210',2,'11',2,'11','Savska','Savska',1),
+('NOVO','2023-04-01','2023-04-04','01234567890',2,'11',2,'11','Savska','Savska',3),
+('DELIVERED','2023-04-02','2023-04-05','09876543210',3,'6d',3,'21','Petrinjska','Dugoselska',4),
+('DELIVERED','2023-04-06','2023-04-07','01234567890',2,'6d',3,'21','Petrinjska','Dugoselska',5);
 
 /*Table structure for table `shipment_products` */
 
@@ -127,7 +127,8 @@ insert  into `shipment_products`(`shipment_id`,`product_id`,`amount`) values
 (3,2,1),
 (3,3,1),
 (4,1,2),
-(5,3,1);
+(5,1,1),
+(5,2,2);
 
 /*Table structure for table `user` */
 
@@ -241,7 +242,7 @@ DROP TABLE IF EXISTS `shipmentview`;
 /*!50001 DROP TABLE IF EXISTS `shipmentview` */;
 /*!50001 DROP VIEW IF EXISTS `shipmentview` */;
 
-/*!50001 CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `shipmentview` AS select `s`.`id` AS `ShipmentID`,`s`.`status` AS `STATUS`,`s`.`creation_date` AS `Creation_Date`,`s`.`delivery_date` AS `Delivery_Date`,`u`.`oib` AS `OIB`,`u`.`name` AS `User_Name`,`u`.`surname` AS `User_Surname`,`u`.`phone_number` AS `User_Phone`,`u`.`email` AS `User_Email`,`dc`.`name` AS `Delivery_City`,`s`.`delivery_street_name` AS `Delivery_Street`,`s`.`delivery_house_number` AS `Delivery_Address`,`d`.`name` AS `Delivery_County`,`rc`.`name` AS `Receipt_City`,`s`.`receipt_street_name` AS `Receipt_Street`,`s`.`receipt_house_number` AS `Receipt_Address`,`r`.`name` AS `Receipt_County` from (((((`shipment` `s` join `user` `u` on(`s`.`user_oib` = `u`.`oib`)) join `city` `dc` on(`s`.`delivery_city_id` = `dc`.`id`)) join `county` `d` on(`dc`.`county_id` = `d`.`id`)) join `city` `rc` on(`s`.`receipt_city_id` = `rc`.`id`)) join `county` `r` on(`rc`.`county_id` = `r`.`id`)) */;
+/*!50001 CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `shipmentview` AS select `s`.`id` AS `ShipmentID`,`s`.`status` AS `STATUS`,`s`.`creation_date` AS `Creation_Date`,`s`.`delivery_date` AS `Delivery_Date`,`u`.`oib` AS `OIB`,`u`.`name` AS `User_Name`,`u`.`surname` AS `User_Surname`,`u`.`phone_number` AS `User_Phone`,`u`.`email` AS `User_Email`,`dc`.`name` AS `Delivery_City`,`s`.`delivery_street_name` AS `Delivery_Street`,`s`.`delivery_house_number` AS `Delivery_Address`,`d`.`name` AS `Delivery_County`,`rc`.`name` AS `Receipt_City`,`s`.`receipt_street_name` AS `Receipt_Street`,`s`.`receipt_house_number` AS `Receipt_Address`,`r`.`name` AS `Receipt_County` from (((((`shipment` `s` join `user` `u` on(`s`.`user_oib` = `u`.`oib`)) join `city` `dc` on(`s`.`delivery_city_id` = `dc`.`id`)) join `county` `d` on(`dc`.`county_id` = `d`.`id`)) join `city` `rc` on(`s`.`receipt_city_id` = `rc`.`id`)) join `county` `r` on(`rc`.`county_id` = `r`.`id`)) order by `s`.`id` */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
