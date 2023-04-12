@@ -2,7 +2,8 @@ const express = require('express');
 const router = express.Router();
 const mysql = require('promise-mysql');
 const config = require("../../config");
-const {filterShipments,assignShipment,getShipmentProducts} = require("../../utils/utils");
+const {filterShipments,assignShipment,getShipmentProducts} = require("../../utils/shipmentUtils");
+const {validateDate} = require("../../utils/generalUtils");
 
 initDb = async () => {
     pool = await mysql.createPool(config.pool);
@@ -30,7 +31,17 @@ router.route('/shipments').get(async function(req,res){
     }
 }).post(async function(req, res){
     try{
-        const shipment = assignShipment(req);
+        const shipment
+            = assignShipment(req);
+
+        if(shipment.user_oib.length !== 11){
+            res.json({"code": 400, "status": "Invalid user OIB"});
+        }
+        if(!validateDate(shipment.creation_date) || !validateDate(shipment.delivery_date)){
+            res.json({"code": 400, "status": "Invalid shipment or delivery date"});
+            return;
+        }
+
         let conn = await pool.getConnection();
         let q = await conn.query('INSERT INTO shipment SET ?', shipment);
         for (let i = 0; i < req.body.products.length; i++) {
@@ -50,17 +61,15 @@ router.route('/shipments').get(async function(req,res){
             res.json({"code": 400, "status": "Shipment ID not provided"});
             return;
         }
-        let shipment = {
-            status: req.body.status,
-            creation_date: req.body.creation_date,
-            delivery_date: req.body.delivery_date,
-            user_oib: req.body.user_oib,
-            delivery_city_id: req.body.delivery_city_id,
-            delivery_street_name: req.body.delivery_street_name,
-            delivery_house_number: req.body.delivery_house_number,
-            receipt_city_id: req.body.receipt_city_id,
-            receipt_street_name: req.body.receipt_street_name,
-            receipt_house_number: req.body.receipt_house_number
+        let shipment
+            = assignShipment(req);
+
+        if(shipment.user_oib.length !== 11){
+            res.json({"code": 400, "status": "Invalid user OIB"});
+        }
+        if(!validateDate(shipment.creation_date) || !validateDate(shipment.delivery_date)){
+            res.json({"code": 400, "status": "Invalid shipment or delivery date"});
+            return;
         }
 
         for(let key in shipment){

@@ -20,8 +20,8 @@ function filterShipments(shipments, filters){
 function assignShipment(req){
     return {
         status: req.body.status,
-        creation_date: req.body.creation_date,
-        delivery_date: req.body.delivery_date,
+        creation_date: new Date(req.body.creation_date),
+        delivery_date: new Date(req.body.delivery_date),
         user_oib: req.body.user_oib,
         delivery_city_id: req.body.delivery_city_id,
         delivery_street_name: req.body.delivery_street_name,
