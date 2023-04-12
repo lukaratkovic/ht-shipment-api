@@ -50,7 +50,7 @@ router.route('/shipments').get(async function(req,res){
             res.json({"code": 400, "status": "Shipment ID not provided"});
             return;
         }
-        const shipment = {
+        let shipment = {
             status: req.body.status,
             creation_date: req.body.creation_date,
             delivery_date: req.body.delivery_date,
@@ -62,9 +62,18 @@ router.route('/shipments').get(async function(req,res){
             receipt_street_name: req.body.receipt_street_name,
             receipt_house_number: req.body.receipt_house_number
         }
+
+        for(let key in shipment){
+            if(shipment[key] === undefined || shipment[key] == null)
+                delete shipment[key]
+        }
+
         console.log(shipment);
+
         let conn = await pool.getConnection();
-        let q = await conn.query('UPDATE shipment SET ? WHERE id = ?', [shipment,req.body.id]);
+        if(req.body.products === undefined){
+            let q = await conn.query('UPDATE shipment SET ? WHERE id = ?', [shipment,req.body.id]);
+        }
         conn.release();
         res.json({"code": 200, "status": "OK"});
     } catch(e){
