@@ -34,11 +34,17 @@ router.route('/shipments').get(async function(req,res){
         const shipment
             = assignShipment(req);
 
+        let missingProperties = [];
+        for(const property in shipment){
+            if(shipment[property] === undefined || shipment[property] == null)
+                missingProperties.push(property);
+        }
+        if(missingProperties.length > 0){
+            res.json({"code": 400, "status": `Missing properties: ${missingProperties}`})
+            return;
+        }
         if(shipment.user_oib.length !== 11){
             res.json({"code": 400, "status": "Invalid user OIB"});
-        }
-        if(!validateDate(shipment.creation_date) || !validateDate(shipment.delivery_date)){
-            res.json({"code": 400, "status": "Invalid shipment or delivery date"});
             return;
         }
 
@@ -67,11 +73,6 @@ router.route('/shipments').get(async function(req,res){
         if(shipment.user_oib !== undefined && shipment.user_oib.length !== 11){
             res.json({"code": 400, "status": "Invalid user OIB"});
         }
-        if(!validateDate(shipment.creation_date) || !validateDate(shipment.delivery_date)){
-            res.json({"code": 400, "status": "Invalid shipment or delivery date"});
-            return;
-        }
-
 
         for(let key in shipment){
             if(shipment[key] === undefined || shipment[key] == null)

@@ -5,6 +5,7 @@ module.exports={
         host: 'localhost',
         user: 'root',
         password: '',
-        database: 'shipments'
+        database: 'shipments',
+        timezone: 'utc'
     }
 }
