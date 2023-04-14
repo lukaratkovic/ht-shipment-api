@@ -96,7 +96,7 @@ CREATE TABLE `shipment` (
   CONSTRAINT `shipment_ibfk_1` FOREIGN KEY (`user_oib`) REFERENCES `user` (`oib`),
   CONSTRAINT `shipment_ibfk_2` FOREIGN KEY (`delivery_city_id`) REFERENCES `city` (`id`),
   CONSTRAINT `shipment_ibfk_3` FOREIGN KEY (`receipt_city_id`) REFERENCES `city` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=32 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=35 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 /*Data for the table `shipment` */
 
@@ -104,7 +104,10 @@ insert  into `shipment`(`status`,`creation_date`,`delivery_date`,`user_oib`,`del
 ('DELIVERED','2023-03-31','2023-04-01','09876543210',2,'11',2,'11','Savska','Savska',1),
 ('NOVO','2023-04-01','2023-04-04','01234567890',2,'11',2,'11','Savska','Savska',3),
 ('DELIVERED','2023-04-02','2023-04-05','09876543210',3,'6d',3,'21','Petrinjska','Dugoselska',4),
-('DELIVERED','2023-04-06','2023-04-07','01234567890',2,'6d',3,'21','Petrinjska','Dugoselska',5);
+('DELIVERED','2023-04-06','2023-04-07','01234567890',2,'6d',3,'21','Petrinjska','Dugoselska',5),
+('NOVO','2023-04-12','2023-04-20','01234567890',1,'64b',2,'12c','Radnicka','Savska',32),
+('DELIVERED','2023-04-12','2023-04-20','01234567890',1,'64b',2,'12c','Radnicka','Savska',33),
+('NOVO','2023-04-12','2023-04-20','01234567890',1,'64b',2,'12c','Radnicka','Savska',34);
 
 /*Table structure for table `shipment_products` */
 
@@ -127,8 +130,12 @@ insert  into `shipment_products`(`shipment_id`,`product_id`,`amount`) values
 (3,2,1),
 (3,3,1),
 (4,1,2),
-(5,1,1),
-(5,2,2);
+(33,1,2),
+(33,2,1),
+(5,1,2),
+(5,2,1),
+(34,1,1),
+(34,2,1);
 
 /*Table structure for table `user` */
 
@@ -185,8 +192,8 @@ DELIMITER $$
 /*!50003 CREATE DEFINER=`root`@`localhost` PROCEDURE `ShipmentProducts`(IN p_id VARCHAR(11))
 BEGIN
 
-	SELECT name Product, amount Amount from shipment_products sp
-	join product p on sp.product_id = p.id
+	SELECT product_id id, NAME Product, amount Amount FROM shipment_products sp
+	JOIN product p ON sp.product_id = p.id
 	WHERE shipment_id = p_id;
 END */$$
 DELIMITER ;
