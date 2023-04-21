@@ -170,14 +170,14 @@ BEGIN
 		User_Name, User_Surname, User_Phone, User_Email,
 		Delivery_City, Delivery_Street, Delivery_Address, Delivery_County,
 		Receipt_City, Receipt_Street, Receipt_Address, Receipt_County
-		FROM ShipmentView;
+		FROM shipmentview;
 	ELSE
 		select
 		ShipmentID, STATUS, Creation_Date, Delivery_Date,
 		User_Name, User_Surname, User_Phone, User_Email,
 		Delivery_City, Delivery_Street, Delivery_Address, Delivery_County,
 		Receipt_City, Receipt_Street, Receipt_Address, Receipt_County
-		from ShipmentView
+		from shipmentview
 		WHERE ShipmentID = p_id;
 	end if;
 END */$$
@@ -212,7 +212,7 @@ BEGIN
 	User_Name, User_Surname, User_Phone, User_Email,
 	Delivery_City, Delivery_Street, Delivery_Address, Delivery_County,
 	Receipt_City, Receipt_Street, Receipt_Address, Receipt_County
-	from ShipmentView
+	from shipmentview
 	where OIB = p_oib;
 END */$$
 DELIMITER ;
@@ -241,7 +241,7 @@ DROP TABLE IF EXISTS `shipmentview`;
  `Receipt_City` varchar(256) ,
  `Receipt_Street` varchar(256) ,
  `Receipt_Address` varchar(8) ,
- `Receipt_County` varchar(256) 
+ `Receipt_County` varchar(256)
 )*/;
 
 /*View structure for view shipmentview */
