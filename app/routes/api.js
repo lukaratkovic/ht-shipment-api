@@ -27,10 +27,14 @@ router.route('/shipments').get(async function(req,res){
             shipments[i].Products = await getShipmentProducts(conn, shipments[i].ShipmentID);
         }
         conn.release();
-        res.json({"code": 200, "status": "OK", "data": shipments});
+        res.status(200).json({
+            "data": shipments
+        });
     } catch (e){
         console.log(e);
-        return res.json({"code": 100, "status": "Error with query"});
+        return res.status(500).json({
+            "status": "Error with query"
+        });
     }
 }).post(async function(req, res){
     try{
@@ -45,11 +49,15 @@ router.route('/shipments').get(async function(req,res){
                 missingProperties.push(property);
         }
         if(missingProperties.length > 0){
-            res.json({"code": 400, "status": `Missing properties: ${missingProperties}`})
+            res.status(400).json({
+                "status": `Missing properties: ${missingProperties}`
+            })
             return;
         }
         if(shipment.user_oib.length !== 11){
-            res.json({"code": 400, "status": "Invalid user OIB"});
+            res.status(400).json({
+                "status": "Invalid user OIB"
+            });
             return;
         }
 
@@ -62,10 +70,14 @@ router.route('/shipments').get(async function(req,res){
                 [q.insertId, product.product_id, product.amount]);
         }
         conn.release();
-        res.json({"code": 200, "status": "OK"});
+        res.status(202).json({
+            "data": shipment
+        });
     } catch(e){
         console.log(e);
-        return res.json({"code": 100, "status": "Error with query"});
+        return res.status(500).json({
+            "status": "Error with query"
+        });
     }
 });
 
@@ -78,17 +90,23 @@ router.route('/shipments/:id').get(async function(req,res){
         rows = rows[0];
         // Check if shipments exists
         if(rows.length === 0){
-            res.json({"code": 204, "status": "Shipment does not exist"});
+            res.status(404).json({
+                "status": "Shipment does not exist"
+            });
             return;
         }
         let shipments = rows;
         // Get shipment products from database
         shipments[0].Products = await getShipmentProducts(conn, req.params.id);
         conn.release();
-        res.json({"code": 200, "status": "OK", "data": shipments});
+        res.status(200).json({
+            "data": shipments
+        });
     } catch(e){
         console.log(e);
-        return res.json({"code": 100, "status": "Error with query"});
+        return res.status(500).json({
+            "status": "Error with query"
+        });
     }
 }).put(async function(req,res){
     try{
@@ -97,11 +115,15 @@ router.route('/shipments/:id').get(async function(req,res){
             = assignShipment(req);
         // Check for invalid or missing properties
         if(req.params.id === undefined) {
-            res.json({"code": 400, "status": "Shipment ID not provided"});
+            res.status(400).json({
+                "status": "Shipment ID not provided"
+            });
             return;
         }
         if(shipment.user_oib !== undefined && shipment.user_oib.length !== 11){
-            res.json({"code": 400, "status": "Invalid user OIB"});
+            res.status(400).json({
+                "status": "Invalid user OIB"
+            });
         }
 
         // Remove undefined and null fields so they remain unchanged in the database
@@ -125,10 +147,14 @@ router.route('/shipments/:id').get(async function(req,res){
         }
 
         conn.release();
-        res.json({"code": 200, "status": "OK"});
+        res.status(200).json({
+            "data": shipment
+        });
     } catch(e){
         console.log(e);
-        return res.json({"code": 100, "status": "Error with query"});
+        return res.status(500).json({
+            "status": "Error with query"
+        });
     }
 });
 
@@ -145,16 +171,22 @@ router.route('/users/:userId').get(async function(req,res){
             shipments[i].Products = await getShipmentProducts(conn, shipments[i].ShipmentID);
         }
         conn.release();
-        res.json({"code": 200, "status": "OK", "data": shipments});
+        res.status(200).json({
+            "data": shipments
+        });
     } catch(e){
         console.log(e);
-        return res.json({"code": 100, "status": "Error with query"});
+        return res.status(500).json({
+            "status": "Error with query"
+        });
     }
 });
 
 // Default route for invalid API calls
 router.use('*', async function(req,res){
-    res.json({"code": 400, "status": "Route does not exist"});
+    res.status(404).json({
+        "status": "Route does not exist"
+    });
 });
 
 module.exports = router;

@@ -3,8 +3,9 @@ module.exports={
     pool: {
         connectionLimit: 100,
         host: 'localhost',
-        user: 'root',
-        password: '',
+        port: 3306,
+        user: 'user',
+        password: 'password',
         database: 'shipments',
         timezone: 'utc'
     }
